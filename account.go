@@ -1,4 +1,4 @@
-package accounter
+package accounts
 
 // Accounts
 // Account
@@ -8,11 +8,11 @@ import (
 	"fmt"
 )
 
-type Account1 struct {
+type Account222 struct {
 	data map[string]int64
 }
 
-func (a *Account1) AddAmount(sub string, amount int64) int64 {
+func (a *Account222) AddAmount(sub string, amount int64) int64 {
 	cur, _ := a.data[sub]
 	//if !ok {
 	//	cur = 0
@@ -34,7 +34,9 @@ type Account struct {
 NewAccount - create new Account.
 */
 func NewAccount() *Account {
-	return &Account{}
+	return &Account{
+		blocks: make(map[string]uint64),
+	}
 }
 
 func (a *Account) Debit(amount uint64) (uint64, uint64, error) {
@@ -65,6 +67,20 @@ func (a *Account) Block(key string, amount uint64) (uint64, uint64, error) {
 	return a.available, a.blocked, nil
 }
 
+func (a *Account) BlockNoFix(amount uint64) (uint64, uint64, error) {
+	if a.available < amount {
+		return a.available, a.blocked, fmt.Errorf("Blocking error - there is %d, but blocked %d.", a.available, amount)
+	}
+	newAviable := a.available - amount
+	newBlocked := a.blocked + amount
+	if newBlocked < a.blocked {
+		return a.available, a.blocked, fmt.Errorf("Overflow error: there is %d, add %d, get %d. (Block operation)", a.blocked, amount, newBlocked)
+	}
+	a.available = newAviable
+	a.blocked = newBlocked
+	return a.available, a.blocked, nil
+}
+
 func (a *Account) Unblock(key string, amount uint64) (uint64, uint64, error) {
 	sum, ok := a.blocks[key]
 	if !ok {
@@ -80,6 +96,17 @@ func (a *Account) Unblock(key string, amount uint64) (uint64, uint64, error) {
 		return a.available, a.blocked, fmt.Errorf("Overflow error: there is %d, add %d, get %d. (Unlock operation)", a.available, amount, newAviable)
 	}
 	delete(a.blocks, key)
+	a.available = newAviable
+	a.blocked = newBlocked
+	return a.available, a.blocked, nil
+}
+
+func (a *Account) UnblockNoFix(amount uint64) (uint64, uint64, error) {
+	newAviable := a.available + amount
+	newBlocked := a.blocked - amount
+	if newAviable < a.available {
+		return a.available, a.blocked, fmt.Errorf("Overflow error: there is %d, add %d, get %d. (Unlock operation)", a.available, amount, newAviable)
+	}
 	a.available = newAviable
 	a.blocked = newBlocked
 	return a.available, a.blocked, nil
