@@ -8,32 +8,43 @@ import (
 	"fmt"
 )
 
-type Account222 struct {
-	data map[string]int64
+/*
+newAccount - create new Account.
+*/
+func New() *Accounts {
+	return &Accounts{
+		data: make(map[string]*Account),
+	}
 }
 
-func (a *Account222) AddAmount(sub string, amount int64) int64 {
-	cur, _ := a.data[sub]
-	//if !ok {
-	//	cur = 0
-	//}
-	cur += amount
-	if cur > 0 {
-		a.data[sub] = cur
+type Accounts struct {
+	data map[string]*Account
+}
+
+func (a *Accounts) Account(id string) *Account {
+	acc, ok := a.data[id]
+	if !ok {
+		acc = newAccount()
 	}
-	return cur
+	return acc
+}
+
+type Balance struct {
+	available uint64
+	blocked   uint64
 }
 
 type Account struct {
-	available uint64
-	blocked   uint64
-	blocks    map[string]uint64
+	Balance
+	//available uint64
+	//blocked   uint64
+	blocks map[string]uint64
 }
 
 /*
-NewAccount - create new Account.
+newAccount - create new Account.
 */
-func NewAccount() *Account {
+func newAccount() *Account {
 	return &Account{
 		blocks: make(map[string]uint64),
 	}

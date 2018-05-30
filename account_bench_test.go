@@ -15,7 +15,7 @@ var testCount int = 4000000000
 
 func BenchmarkDebit(b *testing.B) {
 	b.StopTimer()
-	a := NewAccount()
+	a := newAccount()
 	a.Debit(uint64(testCount))
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
@@ -25,7 +25,7 @@ func BenchmarkDebit(b *testing.B) {
 
 func BenchmarkCredit(b *testing.B) {
 	b.StopTimer()
-	a := NewAccount()
+	a := newAccount()
 	a.Debit(uint64(testCount))
 	//for i := 0; i < testCount; i++ {
 	//	a.Block(strconv.Itoa(i), uint64(i))
@@ -38,7 +38,7 @@ func BenchmarkCredit(b *testing.B) {
 
 func BenchmarkBlock(b *testing.B) {
 	b.StopTimer()
-	a := NewAccount()
+	a := newAccount()
 	a.Debit(uint64(testCount))
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
@@ -48,7 +48,7 @@ func BenchmarkBlock(b *testing.B) {
 
 func BenchmarkBlockUnblock(b *testing.B) {
 	b.StopTimer()
-	a := NewAccount()
+	a := newAccount()
 	a.Debit(uint64(testCount))
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
